@@ -224,3 +224,7 @@ FROM transaction;
 
 SELECT min(Amount) AS HighestTransactionAmount
 FROM transaction;
+
+-- =====================================================
+-- END OF SECTION 1 : BASIC SQL QUERIES
+-- =====================================================
