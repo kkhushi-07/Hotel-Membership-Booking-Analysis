@@ -470,3 +470,292 @@ ON ms.MembershipID=b.MembershipID
 INNER JOIN transaction t
 ON b.BookingID=t.BookingID
 GROUP BY m.Subsidiary;
+
+
+-- =====================================================
+-- END OF SECTION 2 : JOIN QUERIES
+-- =====================================================
+
+
+-- =====================================================
+-- SECTION 3 : AGGREGATION & RANKING QUERIES
+-- =====================================================
+
+
+-- =====================================================
+-- Problem 21
+-- Question:
+-- List the top 10 members by booking count.
+--
+-- SQL Concept:
+-- COUNT(), GROUP BY, ORDER BY, LIMIT
+--
+-- Tables Used:
+-- Member, Membership, Booking
+--
+-- Business Purpose:
+-- Identify the members who have made the highest number of bookings.
+-- =====================================================
+
+
+SELECT m.MemberID,m.Name,count(b.BookingID) AS TotalBookings 
+FROM member m
+INNER JOIN membership1 ms
+ON m.MemberID=ms.MemberID
+INNER JOIN bookings b
+ON ms.MembershipID=b.MembershipID
+GROUP by m.MemberID,m.Name
+ORDER BY TotalBookings DESC
+LIMIT 10;
+
+
+
+-- =====================================================
+-- Problem 22
+-- Question:
+-- List the top 10 members by revenue.
+--
+-- SQL Concept:
+-- SUM(), GROUP BY, ORDER BY, LIMIT
+--
+-- Tables Used:
+-- Member, Membership, Booking, Transaction
+--
+-- Business Purpose:
+-- Identify the highest revenue-generating members.
+-- =====================================================
+
+
+SELECT m.MemberID,m.Name,sum(t.Amount) as TotalRevenue
+FROM member M
+INNER JOIN membership1 ms
+ON m.MemberID=ms.MemberID
+INNER JOIN bookings b
+ON ms.MembershipID=b.MembershipID
+INNER JOIN transaction t
+ON b.BookingID=t.BookingID
+GROUP BY m.MemberID,m.Name
+ORDER BY TotalRevenue DESC
+LIMIT 10;
+
+
+
+-- =====================================================
+-- Problem 23
+-- Question:
+-- List the top 5 hotels by revenue.
+--
+-- SQL Concept:
+-- SUM(), GROUP BY, ORDER BY, LIMIT
+--
+-- Tables Used:
+-- Hotels, Booking, Transaction
+--
+-- Business Purpose:
+-- Identify the hotels generating the highest revenue.
+-- =====================================================
+
+
+SELECT h.HotelID,h.HotelName,SUM(t.Amount) as Revenue 
+FROM hotels h
+INNER JOIN bookings b
+ON h.HotelID=b.HotelID
+INNER JOIN transaction t
+ON b.BookingID=t.BookingID
+GROUP BY h.HotelID,h.HotelName
+ORDER BY Revenue 
+LIMIT 5;
+
+
+
+-- =====================================================
+-- Problem 24
+-- Question:
+-- List the top 5 cities by revenue.
+--
+-- SQL Concept:
+-- SUM(), GROUP BY, ORDER BY, LIMIT
+--
+-- Tables Used:
+-- Hotels, Booking, Transaction
+--
+-- Business Purpose:
+-- Compare revenue generated across different cities.
+-- =====================================================
+
+
+SELECT h.City,SUM(t.Amount) as TotalRevenue
+FROM hotels h
+INNER JOIN bookings b
+ON h.HotelID=b.HotelID
+INNER JOIN transaction t
+ON b.BookingID=t.BookingID
+GROUP BY h.City
+ORDER BY TotalRevenue DESC
+LIMIT 5;
+
+
+
+-- =====================================================
+-- Problem 25
+-- Question:
+-- What is the average transaction amount?
+--
+-- SQL Concept:
+-- AVG()
+--
+-- Tables Used:
+-- Transaction
+--
+-- Business Purpose:
+-- Determine the average value of a transaction.
+-- =====================================================
+
+
+SELECT AVG(Amount) AS AverageTransactionAmount
+FROM transaction;
+
+
+-- =====================================================
+-- Problem 26
+-- Question:
+-- What is the average revenue per booking?
+--
+-- SQL Concept:
+-- AVG(), INNER JOIN
+--
+-- Tables Used:
+-- Booking, Transaction
+--
+-- Business Purpose:
+-- Calculate the average revenue generated from each booking.
+-- =====================================================
+
+
+SELECT
+    AVG(t.Amount) AS AverageRevenuePerBooking
+FROM bookings b
+INNER JOIN transaction t
+    ON b.BookingID = t.BookingID;
+
+
+
+-- =====================================================
+-- Problem 27
+-- Question:
+-- What is the average number of bookings per member?
+--
+-- SQL Concept:
+-- AVG(), Subquery
+--
+-- Tables Used:
+-- Member, Membership, Booking
+--
+-- Business Purpose:
+-- Measure the average booking activity of members.
+-- =====================================================
+
+SSELECT
+    AVG(TotalBookings) AS AverageBookingsPerMember
+FROM
+(
+    SELECT
+        m.MemberID,
+        COUNT(b.BookingID) AS TotalBookings
+    FROM Member m
+    INNER JOIN Membership1 ms
+        ON m.MemberID = ms.MemberID
+    INNER JOIN bookings b
+        ON ms.MembershipID = b.MembershipID
+    GROUP BY m.MemberID
+) AS BookingSummary;
+
+
+-- =====================================================
+-- Problem 28
+-- Question:
+-- Find members who have multiple memberships.
+--
+-- SQL Concept:
+-- GROUP BY, HAVING
+--
+-- Tables Used:
+-- Member, Membership
+--
+-- Business Purpose:
+-- Identify members holding more than one membership.
+-- =====================================================
+
+
+SELECT m.MemberID,m.Name,COUNT(ms.MembershipID) AS TotalMembership
+FROM member m 
+INNER JOIN membership1 ms
+ON m.MemberID=ms.MemberID
+GROUP BY m.MemberID,m.Name
+HAVING COUNT(ms.MembershipID) > 1;
+
+
+
+-- =====================================================
+-- Problem 29
+-- Question:
+-- Find hotels with more than 100 bookings.
+--
+-- SQL Concept:
+-- GROUP BY, HAVING
+--
+-- Tables Used:
+-- Hotels, Booking
+--
+-- Business Purpose:
+-- Identify hotels with high booking volume.
+-- =====================================================
+
+
+SELECT h.HotelID , h.HotelName , COUNT(b.BookingID) as TotalBooking
+FROM hotels h
+INNER JOIN bookings b
+ON h.HotelID=b.HotelID
+GROUP BY h.HotelID , h.HotelName
+HAVING COUNT(b.BookingID) > 100;
+
+
+-- =====================================================
+-- Problem 30
+-- Question:
+-- Find products whose revenue is above the overall average product revenue.
+--
+-- SQL Concept:
+-- Subquery, SUM(), HAVING
+--
+-- Tables Used:
+-- Membership, Booking, Transaction
+--
+-- Business Purpose:
+-- Identify high-performing membership products.
+-- =====================================================
+
+SELECT
+    ms.Product,
+    SUM(t.Amount) AS TotalRevenue
+FROM Membership1 ms
+INNER JOIN bookings b
+    ON ms.MembershipID = b.MembershipID
+INNER JOIN transaction t
+    ON b.BookingID = t.BookingID
+GROUP BY ms.Product
+HAVING SUM(t.Amount) >
+(
+    SELECT AVG(ProductRevenue)
+    FROM
+    (
+        SELECT
+            SUM(t2.Amount) AS ProductRevenue
+        FROM Membership1 ms2
+        INNER JOIN bookings b2
+            ON ms2.MembershipID = b2.MembershipID
+        INNER JOIN Transaction t2
+            ON b2.BookingID = t2.BookingID
+        GROUP BY ms2.Product
+    ) AS RevenueSummary
+);
