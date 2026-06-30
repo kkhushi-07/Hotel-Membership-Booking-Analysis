@@ -6,6 +6,11 @@
 -- Database: Hotel Membership Database
 -- =====================================================
 
+-- =====================================================
+-- Note:
+-- This project uses MySQL 8.0 features such as Window Functions
+-- (RANK(), SUM() OVER()).
+-- =====================================================
 
 -- =====================================================
 -- SECTION 1 : BASIC SQL QUERIES
