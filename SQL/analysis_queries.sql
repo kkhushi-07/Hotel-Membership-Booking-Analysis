@@ -759,3 +759,284 @@ HAVING SUM(t.Amount) >
         GROUP BY ms2.Product
     ) AS RevenueSummary
 );
+
+
+-- =====================================================
+-- END OF SECTION 3 : AGGREGATION & RANKING QUERIES
+-- =====================================================
+
+
+-- =====================================================
+-- SECTION 4 : ADVANCED SQL QUERIES
+-- =====================================================
+
+
+-- =====================================================
+-- Problem 31
+-- Question:
+-- Find members without any membership.
+--
+-- SQL Concept:
+-- LEFT JOIN, IS NULL
+--
+-- Tables Used:
+-- Member, Membership
+--
+-- Business Purpose:
+-- Identify registered members who have not purchased any membership.
+-- =====================================================
+
+
+SELECT m.MemberID,m.Name
+FROM member m
+LEFT JOIN membership1 ms
+ON m.MemberID=ms.MemberID
+WHERE ms.MembershipID IS NULL;
+
+
+
+-- =====================================================
+-- Problem 32
+-- Question:
+-- Find members without any bookings.
+--
+-- SQL Concept:
+-- LEFT JOIN, IS NULL
+--
+-- Tables Used:
+-- Member, Membership, Booking
+--
+-- Business Purpose:
+-- Identify members who have memberships but have never made a booking.
+-- =====================================================
+
+
+SELECT m.MemberID,m.Name
+FROM member m
+INNER JOIN membership1 ms
+ON m.MemberID=ms.MemberID
+LEFT JOIN bookings b
+ON ms.MembershipID=b.MembershipID
+WHERE b.BookingID IS NULL;
+
+
+-- =====================================================
+-- Problem 33
+-- Question:
+-- Find memberships without any entitlements.
+--
+-- SQL Concept:
+-- LEFT JOIN, IS NULL
+--
+-- Tables Used:
+-- Membership, Entitlements
+--
+-- Business Purpose:
+-- Identify memberships that do not have any assigned benefits.
+-- =====================================================
+
+
+SELECT ms.MembershipID
+FROM membership1 ms
+LEFT JOIN entitlements e
+ON ms.MembershipID=e.MembershipID
+WHERE e.EntitlementID IS NULL;
+
+
+-- =====================================================
+-- Problem 34
+-- Question:
+-- Find hotels without any bookings.
+--
+-- SQL Concept:
+-- LEFT JOIN, IS NULL
+--
+-- Tables Used:
+-- Hotels, Booking
+--
+-- Business Purpose:
+-- Identify hotels that have never received a booking.
+-- =====================================================
+
+
+SELECT h.HotelID,h.HotelName
+FROM hotels h
+LEFT JOIN bookings b
+ON h.HotelID=b.HotelID
+WHERE b.BookingID IS NULL;
+
+
+-- =====================================================
+-- Problem 35
+-- Question:
+-- Find members who have entitlements but no bookings.
+--
+-- SQL Concept:
+-- Multiple JOINs, LEFT JOIN, IS NULL
+--
+-- Tables Used:
+-- Member, Membership, Entitlements, Booking
+--
+-- Business Purpose:
+-- Identify members who have benefits but have not used them.
+-- =====================================================
+
+
+SELECT m.MemberID,m.Name
+FROM member m
+INNER JOIN membership1 ms
+ON m.MemberID=ms.MemberID
+INNER JOIN entitlements e
+ON ms.MembershipID=e.MembershipID
+LEFT JOIN bookings b
+ON ms.MembershipID=b.MembershipID
+WHERE b.BookingID IS NULL;
+
+
+-- =====================================================
+-- Problem 36
+-- Question:
+-- Find members who have bookings but no entitlements.
+--
+-- SQL Concept:
+-- Multiple JOINs, LEFT JOIN, IS NULL
+--
+-- Tables Used:
+-- Member, Membership, Booking, Entitlements
+--
+-- Business Purpose:
+-- Identify members actively booking hotels without membership benefits.
+-- =====================================================
+
+
+SELECT m.MemberID,m.Name
+FROM member m
+INNER JOIN membership1 ms
+ON m.MemberID=ms.MemberID
+INNER JOIN bookings b
+ON ms.MembershipID=b.MembershipID
+LEFT JOIN entitlements e
+ON ms.MembershipID=e.MembershipID
+WHERE e.entitlementID IS NULL;
+
+
+
+-- =====================================================
+-- Problem 37
+-- Question:
+-- Find the top 3 members by revenue within each subsidiary.
+--
+-- SQL Concept:
+-- Window Function (RANK())
+--
+-- Tables Used:
+-- Member, Membership, Booking, Transaction
+--
+-- Business Purpose:
+-- Identify the highest revenue-generating members in each subsidiary.
+-- =====================================================
+
+
+SELECT *FROM(
+SELECT m.Subsidiary,m.MemberID,m.Name,SUM(t.Amount) as TotalRevenue ,
+RANK () OVER
+(
+partition by m.Subsidiary
+ORDER BY SUM(t.Amount) DESC
+)AS RevenueRank
+FROM member m
+INNER JOIN membership1 ms
+ON m.MemberID=ms.MemberID
+INNER JOIN bookings b
+ON ms.MembershipID=b.MembershipID
+INNER JOIN transaction t
+ON b.BookingID=t.BookingID
+GROUP BY m.Subsidiary, m.MemberID,m.Name
+ORDER BY RevenueRank DESC
+)RankedMember
+WHERE RevenueRank <=3;
+
+
+
+-- =====================================================
+-- Problem 38
+-- Question:
+-- Calculate running revenue by booking date.
+--
+-- SQL Concept:
+-- SUM() OVER()
+--
+-- Tables Used:
+-- Booking, Transaction
+--
+-- Business Purpose:
+-- Monitor cumulative revenue over time.
+-- =====================================================
+
+
+SELECT b.BookingDate,t.Amount,SUM(t.Amount) OVER (
+ORDER BY b.BookingDate 
+) AS RunningRevenue
+FROM bookings b
+INNER JOIN transaction t
+ON b.BookingID=t.BookingID;
+
+
+
+-- =====================================================
+-- Problem 39
+-- Question:
+-- Calculate cumulative monthly revenue.
+--
+-- SQL Concept:
+-- Window Function, SUM() OVER()
+--
+-- Tables Used:
+-- Booking, Transaction
+--
+-- Business Purpose:
+-- Analyze month-by-month cumulative revenue growth.
+-- =====================================================
+
+SELECT
+    DATE_FORMAT(b.BookingDate,'%Y-%m') AS Month,
+    SUM(t.Amount) AS MonthlyRevenue,
+    SUM(SUM(t.Amount)) OVER
+    (
+        ORDER BY DATE_FORMAT(b.BookingDate,'%Y-%m')
+    ) AS CumulativeRevenue
+FROM bookings b
+INNER JOIN transaction t
+    ON b.BookingID = t.BookingID
+GROUP BY DATE_FORMAT(b.BookingDate,'%Y-%m');
+
+
+
+-- =====================================================
+-- Problem 40
+-- Question:
+-- Calculate the renewal rate by product.
+--
+-- SQL Concept:
+-- JOIN, Aggregate Functions
+--
+-- Tables Used:
+-- Membership, Renewals
+--
+-- Business Purpose:
+-- Measure the percentage of memberships renewed for each product.
+-- =====================================================
+
+SELECT
+    ms.Product,
+    COUNT(r.RenewalID) AS RenewedMemberships,
+    COUNT(ms.MembershipID) AS TotalMemberships,
+    ROUND(
+        COUNT(r.RenewalID) * 100.0 /
+        COUNT(ms.MembershipID),
+        2
+    ) AS RenewalRate
+FROM membership1 ms
+LEFT JOIN renewals r
+    ON ms.MembershipID = r.MembershipID
+GROUP BY ms.Product;
