@@ -1087,3 +1087,26 @@ INNER JOIN membership1 ms
 LEFT JOIN renewals r
     ON ms.MembershipID = r.MembershipID
 GROUP BY m.Subsidiary;
+
+
+-- =====================================================
+-- Problem 42
+-- Question:
+-- Perform a monthly retention analysis.
+--
+-- SQL Concept:
+-- GROUP BY, DATE_FORMAT()
+--
+-- Tables Used:
+-- renewals
+--
+-- Business Purpose:
+-- Analyze how many memberships were renewed each month.
+-- =====================================================
+
+SELECT
+    DATE_FORMAT(RenewalDate,'%Y-%m') AS RenewalMonth,
+    COUNT(RenewalID) AS TotalRenewals
+FROM renewals
+GROUP BY DATE_FORMAT(RenewalDate,'%Y-%m')
+ORDER BY RenewalMonth;
