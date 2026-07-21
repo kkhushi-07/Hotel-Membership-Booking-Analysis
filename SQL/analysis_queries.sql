@@ -1152,3 +1152,52 @@ FROM
         m.Name
 ) TopSpenders
 WHERE SpendingGroup = 1;
+
+
+-- =====================================================
+-- Problem 44
+-- Question:
+-- Create an RFM segmentation model.
+--
+-- SQL Concept:
+-- CTE, Aggregate Functions, DATEDIFF(), CASE
+--
+-- Tables Used:
+-- member, membership1, bookings, transaction
+--
+-- Business Purpose:
+-- Segment members based on Recency, Frequency,
+-- and Monetary value.
+-- =====================================================
+
+
+WITH RFM AS
+(
+    SELECT
+        m.MemberID,
+        m.Name,
+        DATEDIFF(
+            CURDATE(),
+            MAX(b.BookingDate)
+        ) AS Recency,
+        COUNT(b.BookingID) AS Frequency,
+        SUM(t.Amount) AS Monetary
+    FROM member m
+    INNER JOIN membership1 ms
+        ON m.MemberID = ms.MemberID
+    INNER JOIN bookings b
+        ON ms.MembershipID = b.MembershipID
+    INNER JOIN transaction t
+        ON b.BookingID = t.BookingID
+    GROUP BY
+        m.MemberID,
+        m.Name
+)
+
+SELECT *,
+CASE
+    WHEN Monetary >= 5000 THEN 'High Value'
+    WHEN Monetary >= 2500 THEN 'Medium Value'
+    ELSE 'Low Value'
+END AS CustomerSegment
+FROM RFM;
