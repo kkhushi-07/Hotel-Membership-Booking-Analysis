@@ -1045,3 +1045,45 @@ FROM membership1 ms
 LEFT JOIN renewals r
     ON ms.MembershipID = r.MembershipID
 GROUP BY ms.Product;
+
+-- =====================================================
+-- END OF SECTION 4 : ADVANCED SQL QUERIES
+-- =====================================================
+
+
+-- =====================================================
+-- SECTION 5 : BUSINESS ANALYTICS QUERIES
+-- =====================================================
+
+-- =====================================================
+-- Problem 41
+-- Question:
+-- Calculate the churn rate by subsidiary.
+--
+-- SQL Concept:
+-- LEFT JOIN, Aggregate Functions, CASE
+--
+-- Tables Used:
+-- member, membership1, renewals
+--
+-- Business Purpose:
+-- Measure the percentage of memberships that were not renewed
+-- within each subsidiary.
+-- =====================================================
+
+SELECT
+    m.Subsidiary,
+    COUNT(ms.MembershipID) AS TotalMemberships,
+    COUNT(r.RenewalID) AS RenewedMemberships,
+    COUNT(ms.MembershipID) - COUNT(r.RenewalID) AS ChurnedMemberships,
+    ROUND(
+        ((COUNT(ms.MembershipID) - COUNT(r.RenewalID)) * 100.0)
+        / COUNT(ms.MembershipID),
+        2
+    ) AS ChurnRate
+FROM member m
+INNER JOIN membership1 ms
+    ON m.MemberID = ms.MemberID
+LEFT JOIN renewals r
+    ON ms.MembershipID = r.MembershipID
+GROUP BY m.Subsidiary;
