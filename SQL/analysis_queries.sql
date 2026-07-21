@@ -1285,3 +1285,63 @@ GROUP BY
 HAVING COUNT(DISTINCT h.City) >= 3;
 
 
+-- =====================================================
+-- Problem 47
+-- Question:
+-- Find members whose revenue is above the average
+-- revenue of their subsidiary.
+--
+-- SQL Concept:
+-- CTE, Aggregate Functions, JOIN
+--
+-- Tables Used:
+-- member, membership1, bookings, transaction
+--
+-- Business Purpose:
+-- Identify high-value members who generate more revenue
+-- than the average member in their subsidiary.
+-- =====================================================
+
+
+WITH MemberRevenue AS
+(
+    SELECT
+        m.MemberID,
+        m.Name,
+        m.Subsidiary,
+        SUM(t.Amount) AS TotalRevenue
+    FROM member m
+    INNER JOIN membership1 ms
+        ON m.MemberID = ms.MemberID
+    INNER JOIN bookings b
+        ON ms.MembershipID = b.MembershipID
+    INNER JOIN transaction t
+        ON b.BookingID = t.BookingID
+    GROUP BY
+        m.MemberID,
+        m.Name,
+        m.Subsidiary
+),
+
+SubsidiaryAverage AS
+(
+    SELECT
+        Subsidiary,
+        AVG(TotalRevenue) AS AverageRevenue
+    FROM MemberRevenue
+    GROUP BY Subsidiary
+)
+
+SELECT
+    mr.MemberID,
+    mr.Name,
+    mr.Subsidiary,
+    mr.TotalRevenue,
+    sa.AverageRevenue
+FROM MemberRevenue mr
+INNER JOIN SubsidiaryAverage sa
+    ON mr.Subsidiary = sa.Subsidiary
+WHERE mr.TotalRevenue > sa.AverageRevenue
+ORDER BY
+    mr.Subsidiary,
+    mr.TotalRevenue DESC;
