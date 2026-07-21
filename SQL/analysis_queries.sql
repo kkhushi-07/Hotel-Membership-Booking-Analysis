@@ -1110,3 +1110,45 @@ SELECT
 FROM renewals
 GROUP BY DATE_FORMAT(RenewalDate,'%Y-%m')
 ORDER BY RenewalMonth;
+
+
+-- =====================================================
+-- Problem 43
+-- Question:
+-- Identify the top 10% of spenders.
+--
+-- SQL Concept:
+-- Window Function (NTILE())
+--
+-- Tables Used:
+-- member, membership1, bookings, transaction
+--
+-- Business Purpose:
+-- Identify high-value members based on total spending.
+-- =====================================================
+
+
+
+SELECT *
+FROM
+(
+    SELECT
+        m.MemberID,
+        m.Name,
+        SUM(t.Amount) AS TotalRevenue,
+        NTILE(10) OVER
+        (
+            ORDER BY SUM(t.Amount) DESC
+        ) AS SpendingGroup
+    FROM member m
+    INNER JOIN membership1 ms
+        ON m.MemberID = ms.MemberID
+    INNER JOIN bookings b
+        ON ms.MembershipID = b.MembershipID
+    INNER JOIN transaction t
+        ON b.BookingID = t.BookingID
+    GROUP BY
+        m.MemberID,
+        m.Name
+) TopSpenders
+WHERE SpendingGroup = 1;
