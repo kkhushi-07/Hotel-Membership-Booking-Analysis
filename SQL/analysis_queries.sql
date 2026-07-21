@@ -1345,3 +1345,61 @@ WHERE mr.TotalRevenue > sa.AverageRevenue
 ORDER BY
     mr.Subsidiary,
     mr.TotalRevenue DESC;
+
+
+-- =====================================================
+-- Problem 48
+-- Question:
+-- Calculate month-over-month revenue growth.
+--
+-- SQL Concept:
+-- CTE, LAG(), Window Function
+--
+-- Tables Used:
+-- bookings, transaction
+--
+-- Business Purpose:
+-- Analyze monthly revenue trends and measure
+-- revenue growth or decline compared with the
+-- previous month.
+-- =====================================================
+
+
+
+WITH MonthlyRevenue AS
+(
+    SELECT
+        DATE_FORMAT(b.BookingDate, '%Y-%m') AS RevenueMonth,
+        SUM(t.Amount) AS TotalRevenue
+    FROM bookings b
+    INNER JOIN transaction t
+        ON b.BookingID = t.BookingID
+    GROUP BY
+        DATE_FORMAT(b.BookingDate, '%Y-%m')
+),
+
+RevenueWithPreviousMonth AS
+(
+    SELECT
+        RevenueMonth,
+        TotalRevenue,
+        LAG(TotalRevenue) OVER
+        (
+            ORDER BY RevenueMonth
+        ) AS PreviousMonthRevenue
+    FROM MonthlyRevenue
+)
+
+SELECT
+    RevenueMonth,
+    TotalRevenue,
+    PreviousMonthRevenue,
+    ROUND(
+        (
+            (TotalRevenue - PreviousMonthRevenue)
+            / PreviousMonthRevenue
+        ) * 100,
+        2
+    ) AS MoMRevenueGrowthPercentage
+FROM RevenueWithPreviousMonth
+ORDER BY RevenueMonth;
