@@ -1438,3 +1438,103 @@ GROUP BY
 HAVING
     MAX(b.BookingDate) IS NULL
     OR DATEDIFF(CURDATE(), MAX(b.BookingDate)) > 180;
+
+
+-- =====================================================
+-- Problem 50
+-- Question:
+-- Create a dashboard query showing:
+-- Total Members,
+-- Active Memberships,
+-- Revenue,
+-- Renewals,
+-- Top Product,
+-- and Top Hotel.
+--
+-- SQL Concept:
+-- CTE, Aggregate Functions, ORDER BY, LIMIT
+--
+-- Tables Used:
+-- member, membership1, bookings,
+-- transaction, renewals, hotels
+--
+-- Business Purpose:
+-- Create a single summary query containing key business
+-- performance indicators for an executive dashboard.
+-- =====================================================
+
+
+WITH
+TotalMembers AS
+(
+    SELECT
+        COUNT(*) AS TotalMembers
+    FROM member
+),
+
+ActiveMemberships AS
+(
+    SELECT
+        COUNT(*) AS ActiveMemberships
+    FROM membership1
+    WHERE Status = 'Active'
+),
+
+TotalRevenue AS
+(
+    SELECT
+        COALESCE(SUM(Amount), 0) AS TotalRevenue
+    FROM transaction
+),
+
+TotalRenewals AS
+(
+    SELECT
+        COUNT(*) AS TotalRenewals
+    FROM renewals
+),
+
+TopProduct AS
+(
+    SELECT
+        ms.Product AS TopProduct
+    FROM membership1 ms
+    INNER JOIN bookings b
+        ON ms.MembershipID = b.MembershipID
+    INNER JOIN transaction t
+        ON b.BookingID = t.BookingID
+    GROUP BY
+        ms.Product
+    ORDER BY
+        SUM(t.Amount) DESC
+    LIMIT 1
+),
+
+TopHotel AS
+(
+    SELECT
+        h.HotelName AS TopHotel
+    FROM hotels h
+    INNER JOIN bookings b
+        ON h.HotelID = b.HotelID
+    GROUP BY
+        h.HotelID,
+        h.HotelName
+    ORDER BY
+        COUNT(b.BookingID) DESC
+    LIMIT 1
+)
+
+SELECT
+    tm.TotalMembers,
+    am.ActiveMemberships,
+    tr.TotalRevenue,
+    tre.TotalRenewals,
+    tp.TopProduct,
+    th.TopHotel
+FROM TotalMembers tm
+CROSS JOIN ActiveMemberships am
+CROSS JOIN TotalRevenue tr
+CROSS JOIN TotalRenewals tre
+CROSS JOIN TopProduct tp
+CROSS JOIN TopHotel th;
