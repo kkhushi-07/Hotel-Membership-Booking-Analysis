@@ -1201,3 +1201,46 @@ CASE
     ELSE 'Low Value'
 END AS CustomerSegment
 FROM RFM;
+
+-- =====================================================
+-- Problem 45
+-- Question:
+-- Categorize members into Gold, Silver,
+-- and Bronze segments based on revenue.
+--
+-- SQL Concept:
+-- CASE, SUM(), GROUP BY
+--
+-- Tables Used:
+-- member, membership1, bookings, transaction
+--
+-- Business Purpose:
+-- Classify members according to their total revenue.
+-- =====================================================
+
+
+SELECT
+    m.MemberID,
+    m.Name,
+    SUM(t.Amount) AS TotalRevenue,
+
+    CASE
+        WHEN SUM(t.Amount) >= 5000 THEN 'Gold'
+        WHEN SUM(t.Amount) >= 2500 THEN 'Silver'
+        ELSE 'Bronze'
+    END AS MembershipSegment
+
+FROM member m
+
+INNER JOIN membership1 ms
+    ON m.MemberID = ms.MemberID
+
+INNER JOIN bookings b
+    ON ms.MembershipID = b.MembershipID
+
+INNER JOIN transaction t
+    ON b.BookingID = t.BookingID
+
+GROUP BY
+    m.MemberID,
+    m.Name;
