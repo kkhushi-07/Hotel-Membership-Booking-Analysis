@@ -1244,3 +1244,44 @@ INNER JOIN transaction t
 GROUP BY
     m.MemberID,
     m.Name;
+
+
+-- =====================================================
+-- END OF SECTION 5 : BUSINESS ANALYTICS QUERIES
+-- =====================================================
+
+
+-- =====================================================
+-- Problem 46
+-- Question:
+-- Find members who have booked hotels in at least
+-- 3 different cities.
+--
+-- SQL Concept:
+-- COUNT(DISTINCT), GROUP BY, HAVING, Multiple INNER JOINs
+--
+-- Tables Used:
+-- member, membership1, bookings, hotels
+--
+-- Business Purpose:
+-- Identify members who travel frequently across
+-- multiple cities.
+-- =====================================================
+
+SELECT
+    m.MemberID,
+    m.Name,
+    COUNT(DISTINCT h.City) AS DifferentCities
+FROM member m
+INNER JOIN membership1 ms
+    ON m.MemberID = ms.MemberID
+INNER JOIN bookings b
+    ON ms.MembershipID = b.MembershipID
+INNER JOIN hotels h
+    ON b.HotelID = h.HotelID
+GROUP BY
+    m.MemberID,
+    m.Name
+HAVING COUNT(DISTINCT h.City) >= 3;
+
+
