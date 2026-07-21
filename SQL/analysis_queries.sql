@@ -1403,3 +1403,38 @@ SELECT
     ) AS MoMRevenueGrowthPercentage
 FROM RevenueWithPreviousMonth
 ORDER BY RevenueMonth;
+
+
+-- =====================================================
+-- Problem 49
+-- Question:
+-- Identify dormant members who have not made a booking
+-- in the last 180 days.
+--
+-- SQL Concept:
+-- LEFT JOIN, MAX(), DATEDIFF(), HAVING
+--
+-- Tables Used:
+-- member, membership1, bookings
+--
+-- Business Purpose:
+-- Identify inactive or dormant members for targeted
+-- re-engagement and retention campaigns.
+-- =====================================================
+
+
+SELECT
+    m.MemberID,
+    m.Name,
+    MAX(b.BookingDate) AS LastBookingDate
+FROM member m
+LEFT JOIN membership1 ms
+    ON m.MemberID = ms.MemberID
+LEFT JOIN bookings b
+    ON ms.MembershipID = b.MembershipID
+GROUP BY
+    m.MemberID,
+    m.Name
+HAVING
+    MAX(b.BookingDate) IS NULL
+    OR DATEDIFF(CURDATE(), MAX(b.BookingDate)) > 180;
