@@ -145,14 +145,25 @@ The Power BI dashboard file is available in:
 
 ## 📈 Key Business Insights
 
-The dashboard helps identify:
+The analysis and Power BI dashboard provide the following key business insights:
 
-- Which membership products generate the highest revenue.
-- Which hotels perform best in terms of revenue.
-- How revenue changes over time.
-- The distribution of active, expired, and cancelled memberships.
-- Overall booking and membership performance.
-- The impact of city-level filtering on business performance.
+- 👥 **Customer Base:** The business has approximately 1,000 total members, representing a sizeable customer base.
+
+- 💳 **Membership Status:** Active memberships account for approximately 31.17% of memberships, while expired and cancelled memberships represent a significant portion of the customer base. This indicates an opportunity to improve membership retention and renewal strategies.
+
+- 💰 **Revenue Performance:** The business generated approximately $79 million in total revenue, demonstrating strong overall revenue performance.
+
+- 🏨 **Booking Activity:** The dataset contains approximately 3,000 hotel bookings, reflecting significant customer engagement with the hotel booking service.
+
+- 🔄 **Renewal Performance:** Approximately 800 membership renewals were recorded, indicating meaningful repeat customer activity.
+
+- 🏆 **Hotel Performance:** Hotel24 is the highest revenue-generating hotel among the Top 5 hotels displayed in the dashboard, followed by Hotel35, Hotel9, Hotel1, and Hotel16.
+
+- 📦 **Product Performance:** Explorer Plus generates the highest revenue among the membership products shown, followed closely by Explorer, while Elite and Discovery generate comparatively lower revenue.
+
+- 🌆 **City Performance:** Bangkok is the highest revenue-generating city with approximately $18M in revenue, followed by Sydney ($17M) and Goa ($15M). Singapore generated the lowest revenue among the analyzed cities at approximately $8M.
+
+- 📈 **Revenue Trend:** Monthly revenue is highest at the beginning of the analyzed period, followed by a decline and then relatively stable performance throughout the year with a modest recovery toward the end of the period.
 
 ---
 
