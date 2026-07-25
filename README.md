@@ -163,7 +163,7 @@ The analysis and Power BI dashboard provide the following key business insights:
 
 - 🌆 **City Performance:** **Bangkok** is the highest revenue-generating city with approximately **$18M in revenue**, followed by **Sydney ($17M)** and **Goa ($15M)**. **Singapore** generated the lowest revenue among the analyzed cities at approximately **$8M**.
 
-- 📅 **Highest Revenue Month:** **February** was the highest revenue-generating month, with total revenue of approximately **$1,378,477**.
+- 📅 **Highest Revenue Month:** **February** was the highest revenue-generating month, with total revenue of approximately **$9,145,278**.
 
 - 📈 **Revenue Trend:** Revenue reached its highest point in **February**, followed by a decline after the peak. Revenue remained relatively stable during the middle of the year and showed a modest recovery toward the end of the year.
 
